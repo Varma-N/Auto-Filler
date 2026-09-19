@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "TTD Auto Filler",
+  "description": "Automatically fills TTD booking forms.",
+  "version": "1.0",
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+
+  "host_permissions": [
+    "https://ttdevasthanams.ap.gov.in/*"
+  ],
+
+  "action": {
+    "default_popup": "popup.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://ttdevasthanams.ap.gov.in/*"
+      ],
+      "js": [
+        "data.js",
+        "content.js"
+      ]
+    }
+  ]
+}
