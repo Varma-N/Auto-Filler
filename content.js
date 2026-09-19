@@ -128,7 +128,7 @@ function createFloatingButton() {
     button.style.height = "60px";
     button.style.border = "none";
     button.style.borderRadius = "50%";
-    button.style.background = "#991b1b"; // Matches the new modern popup primary color
+    button.style.background = "#663399"; // Matches the new modern popup primary color
     button.style.color = "#fff";
     button.style.fontSize = "28px";
     button.style.cursor = "pointer";
