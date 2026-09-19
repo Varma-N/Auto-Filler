@@ -1,6 +1,6 @@
 :root {
-    --primary: #991b1b; /* Modern Maroon */
-    --primary-hover: #7f1d1d;
+    --primary: #663399;
+    --primary-hover: #52297a;
     --success: #16a34a;
     --danger: #dc2626;
     --bg-color: #f3f4f6;
@@ -19,7 +19,7 @@ body {
 }
 
 .header {
-    background: linear-gradient(135deg, var(--primary), #b91c1c);
+    background: linear-gradient(135deg, var(--primary), #4c2673);
     color: white;
     padding: 16px;
     display: flex;
@@ -104,7 +104,7 @@ input:focus, select:focus {
     outline: none;
     border-color: var(--primary);
     background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.1);
+    box-shadow: 0 0 0 3px rgba(102, 51, 153, 0.2);
 }
 
 .action-bar {
