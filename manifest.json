@@ -24,7 +24,6 @@
         "https://ttdevasthanams.ap.gov.in/*"
       ],
       "js": [
-        "data.js",
         "content.js"
       ]
     }
