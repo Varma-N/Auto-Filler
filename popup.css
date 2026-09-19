@@ -145,7 +145,7 @@ input:focus, select:focus {
     transform: translateY(1px);
 }
 
-.btn-save { background-color: var(--text-main); }
+.btn-save { background-color: var(--success); }
 .btn-clear { background-color: var(--danger); }
 .btn-fill { 
     background-color: var(--primary); 
