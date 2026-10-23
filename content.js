@@ -6,6 +6,7 @@ chrome.runtime.onMessage.addListener(async (request) => {
 
 async function fillEverything() {
     try {
+        // Fetch data from Chrome's local storage instead of data.js
         const result = await chrome.storage.local.get(['ttdData']);
         const formData = result.ttdData;
         
@@ -26,30 +27,21 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// THE FIX: This function bypasses React's event wrappers to force the value into the state
-function setReactValue(element, value) {
-    if (!element || !value) return;
+function triggerEvents(element) {
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function fill(selector, value) {
+    if (!value) return; // Skip if user left it blank
+    const element = document.querySelector(selector);
+    if (!element) return;
 
     element.removeAttribute("readonly");
     element.removeAttribute("disabled");
     element.focus();
-
-    // Bypass React's internal value tracker
-    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-    nativeInputValueSetter.call(element, value);
-
-    // Dispatch native events so React registers the keystrokes
-    element.dispatchEvent(new Event("input", { bubbles: true }));
-    element.dispatchEvent(new Event("change", { bubbles: true }));
-    element.blur();
-}
-
-function fill(selector, value) {
-    if (!value) return;
-    const element = document.querySelector(selector);
-    if (element) {
-        setReactValue(element, value);
-    }
+    element.value = value;
+    triggerEvents(element);
 }
 
 function fillGeneral(formData) {
@@ -64,7 +56,6 @@ function fillGeneral(formData) {
 async function fillPilgrims(formData) {
     if (!formData.pilgrims || formData.pilgrims.length === 0) return;
 
-    // Matches the exact container class in the provided HTML
     const sections = document.querySelectorAll(".pilDetails_mainContainer__HPFSL");
 
     for (let index = 0; index < sections.length; index++) {
@@ -76,12 +67,9 @@ async function fillPilgrims(formData) {
         set(section, 'input[name="name"]', person.name);
         set(section, 'input[name="age"]', person.age);
         
-        // Handle TTD's Custom Dropdowns
         await selectDropdown(section, 'input[name="gender"]', person.gender);
         await selectDropdown(section, 'input[name="idType"]', person.idType);
         
-        // Wait briefly for the ID Number box to unlock after selecting ID Type
-        await sleep(200); 
         set(section, 'input[name="idNumber"]', person.idNumber);
     }
 }
@@ -89,9 +77,13 @@ async function fillPilgrims(formData) {
 function set(parent, selector, value) {
     if (!value) return;
     const input = parent.querySelector(selector);
-    if (input) {
-        setReactValue(input, value);
-    }
+    if (!input) return;
+
+    input.removeAttribute("readonly");
+    input.removeAttribute("disabled");
+    input.focus();
+    input.value = value;
+    triggerEvents(input);
 }
 
 async function selectDropdown(parent, selector, value) {
@@ -99,30 +91,25 @@ async function selectDropdown(parent, selector, value) {
     const input = parent.querySelector(selector);
     if (!input) return;
 
-    // Click the dummy input to open the dropdown menu
     input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
     input.click();
 
     let options = [];
-    // Wait for the dropdown list items to appear in the DOM
-    for (let i = 0; i < 30; i++) { 
+    for (let i = 0; i < 20; i++) {
         options = document.querySelectorAll("li.floatingDropdown_listItem__tU_5x");
         if (options.length) break;
-        await sleep(20);
+        await sleep(10);
     }
 
-    // Find and click the matching option
     for (const option of options) {
         if (option.textContent.trim().toLowerCase() === value.trim().toLowerCase()) {
             option.click();
-            await sleep(100); // Small pause to let React close the dropdown gracefully
             return;
         }
     }
     console.log(value + " not found in dropdown");
 }
 
-// ---------------- UI BUTTON ---------------- 
 createFloatingButton();
 
 function createFloatingButton() {
@@ -130,7 +117,7 @@ function createFloatingButton() {
 
     const button = document.createElement("button");
     button.id = "ttd-auto-fill-btn";
-    button.innerHTML = "⚡";
+    button.innerHTML = "⚡"; // Modern lightning icon
     button.title = "TTD Auto Fill";
 
     button.style.position = "fixed";
@@ -141,7 +128,7 @@ function createFloatingButton() {
     button.style.height = "60px";
     button.style.border = "none";
     button.style.borderRadius = "50%";
-    button.style.background = "#663399";
+    button.style.background = "#663399"; // Matches the new modern popup primary color
     button.style.color = "#fff";
     button.style.fontSize = "28px";
     button.style.cursor = "pointer";
